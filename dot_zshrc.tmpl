@@ -1,73 +1,143 @@
-# ------------------------------
-# COMMON for ALL OS
-# ------------------------------
-# Load user env
-. "$HOME/.local/bin/env"
+# =============================================================================
+# ~/.zshrc — managed by chezmoi
+# Machine: {{ .chezmoi.hostname }} ({{ .chezmoi.os }}/{{ .chezmoi.arch }})
+# =============================================================================
 
-# Bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+# ---------------------------------------------------------------------------
+# Powerlevel10k instant prompt (must stay near top)
+# ---------------------------------------------------------------------------
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-# Aliases / alerts (from bashrc)
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+# ---------------------------------------------------------------------------
+# XDG base dirs (ensure consistency)
+# ---------------------------------------------------------------------------
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
-# ------------------------------
-# MAC SPECIFIC
-# ------------------------------
-{{ if eq .chezmoi.os "darwin" }}
-# Paths
-export PATH="/opt/homebrew/opt/go@1.22/bin:$PATH"
-export PATH="/usr/local/texlive/2025/bin/universal-darwin:$PATH"
-export PATH="$PATH:$HOME/Developer/flutter/bin"
-export PATH="/Users/haydaramru/.antigravity/antigravity/bin:$PATH"
+# ---------------------------------------------------------------------------
+# PATH helpers — deduplicate
+# ---------------------------------------------------------------------------
+typeset -U path  # zsh built-in: keeps PATH entries unique
+
+# ---------------------------------------------------------------------------
+# Homebrew (macOS only)
+# ---------------------------------------------------------------------------
+{{- if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null)"
+{{- end }}
+
+# ---------------------------------------------------------------------------
+# Zsh plugins (git-cloned to ~/.local/share/zsh/plugins)
+# ---------------------------------------------------------------------------
+ZSH_PLUGINS="$XDG_DATA_HOME/zsh/plugins"
 
 # Powerlevel10k
-source ~/powerlevel10k/powerlevel10k.zsh-theme
-export POWERLEVEL9K_CONFIG_PATH=~/powerlevel10k/powerlevel10k.zsh-theme
+if [[ -d "$ZSH_PLUGINS/powerlevel10k" ]]; then
+  source "$ZSH_PLUGINS/powerlevel10k/powerlevel10k.zsh-theme"
+fi
+
+# zsh-syntax-highlighting
+if [[ -d "$ZSH_PLUGINS/zsh-syntax-highlighting" ]]; then
+  source "$ZSH_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# zsh-autosuggestions
+if [[ -d "$ZSH_PLUGINS/zsh-autosuggestions" ]]; then
+  source "$ZSH_PLUGINS/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+# ---------------------------------------------------------------------------
+# p10k config
+# ---------------------------------------------------------------------------
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Google Cloud SDK
-if [ -f '/Users/haydaramru/Downloads/google-cloud-sdk/path.zsh.inc' ]; then
-  . '/Users/haydaramru/Downloads/google-cloud-sdk/path.zsh.inc'
-fi
-if [ -f '/Users/haydaramru/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then
-  . '/Users/haydaramru/Downloads/google-cloud-sdk/completion.zsh.inc'
+# ---------------------------------------------------------------------------
+# Language runtimes & tools (conditional per machine)
+# ---------------------------------------------------------------------------
+
+# Bun
+if [[ -d "$HOME/.bun" ]]; then
+  export BUN_INSTALL="$HOME/.bun"
+  path=("$BUN_INSTALL/bin" $path)
 fi
 
-# Oh-My-Zsh plugins
-source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+{{- if eq .chezmoi.os "darwin" }}
+
+# Go (Homebrew)
+if [[ -d "/opt/homebrew/opt/go@1.22/bin" ]]; then
+  path=("/opt/homebrew/opt/go@1.22/bin" $path)
+fi
+
+# TeX Live
+if [[ -d "/usr/local/texlive/2025/bin/universal-darwin" ]]; then
+  path=("/usr/local/texlive/2025/bin/universal-darwin" $path)
+fi
 
 # Java 17
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home"
+if [[ -d "/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home" ]]; then
+  export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home"
+fi
+
+# Flutter
+if [[ -d "$HOME/Developer/flutter/bin" ]]; then
+  path=("$HOME/Developer/flutter/bin" $path)
+fi
 
 # Android SDK
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-{{ end }}
+if [[ -d "$HOME/Library/Android/sdk" ]]; then
+  export ANDROID_HOME="$HOME/Library/Android/sdk"
+  path=("$ANDROID_HOME/emulator" "$ANDROID_HOME/platform-tools" $path)
+fi
 
-# ------------------------------
-# LINUX SPECIFIC (VPS / Raspi)
-# ------------------------------
-{{ if eq .chezmoi.os "linux" }}
-# Local paths
-export PATH="$HOME/.local/bin:$PATH"
+# Google Cloud SDK
+if [[ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ]]; then
+  source "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"
+fi
+if [[ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]]; then
+  source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
+fi
 
-# Oh-My-Zsh & Powerlevel10k if installed
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-# Optional: plugins if installed
-# source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-{{ end }}
+# Antigravity
+if [[ -d "$HOME/.antigravity/antigravity/bin" ]]; then
+  path=("$HOME/.antigravity/antigravity/bin" $path)
+fi
+{{- end }}
 
-# ------------------------------
-# ANDROID (Termux)
-# ------------------------------
-{{ if eq .chezmoi.os "android" }}
-export PATH="$PREFIX/bin:$PATH"
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-{{ end }}
+{{- if eq .chezmoi.os "linux" }}
+{{-   if not (eq .chezmoi.osRelease.id "android") }}
+
+# Linux-specific tools
+# Go (snap/manual install)
+if [[ -d "/usr/local/go/bin" ]]; then
+  path=("/usr/local/go/bin" $path)
+fi
+
+# Java (default)
+if [[ -d "/usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture 2>/dev/null)" ]]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture)"
+fi
+{{-   end }}
+{{- end }}
+
+# ---------------------------------------------------------------------------
+# Local bin (all platforms)
+# ---------------------------------------------------------------------------
+path=("$HOME/.local/bin" $path)
+[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
+
+# ---------------------------------------------------------------------------
+# Aliases & functions (shared)
+# ---------------------------------------------------------------------------
+alias ll='ls -lah'
+alias gz='chezmoi'
+alias gza='chezmoi apply'
+alias gzd='chezmoi diff'
+alias gze='chezmoi edit'
+
+# ---------------------------------------------------------------------------
+# Local overrides (not managed by chezmoi)
+# ---------------------------------------------------------------------------
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
