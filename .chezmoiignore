@@ -1,0 +1,20 @@
+# Files to ignore per OS
+# Syntax: Go template → outputs list of patterns to ignore
+
+README.md
+LICENSE
+
+{{- if ne .chezmoi.os "darwin" }}
+# Ignore macOS-specific files on non-mac
+Library/
+{{- end }}
+
+{{- if ne .chezmoi.os "linux" }}
+# Ignore Linux-specific files on non-linux
+{{- end }}
+
+{{- if eq .chezmoi.os "android" }}
+# Termux doesn't need desktop configs
+.config/sway/
+.config/hyprland/
+{{- end }}
