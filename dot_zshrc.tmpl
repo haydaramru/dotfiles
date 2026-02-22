@@ -1,0 +1,73 @@
+# ------------------------------
+# COMMON for ALL OS
+# ------------------------------
+# Load user env
+. "$HOME/.local/bin/env"
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Aliases / alerts (from bashrc)
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# ------------------------------
+# MAC SPECIFIC
+# ------------------------------
+{{ if eq .chezmoi.os "darwin" }}
+# Paths
+export PATH="/opt/homebrew/opt/go@1.22/bin:$PATH"
+export PATH="/usr/local/texlive/2025/bin/universal-darwin:$PATH"
+export PATH="$PATH:$HOME/Developer/flutter/bin"
+export PATH="/Users/haydaramru/.antigravity/antigravity/bin:$PATH"
+
+# Powerlevel10k
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+export POWERLEVEL9K_CONFIG_PATH=~/powerlevel10k/powerlevel10k.zsh-theme
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Google Cloud SDK
+if [ -f '/Users/haydaramru/Downloads/google-cloud-sdk/path.zsh.inc' ]; then
+  . '/Users/haydaramru/Downloads/google-cloud-sdk/path.zsh.inc'
+fi
+if [ -f '/Users/haydaramru/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then
+  . '/Users/haydaramru/Downloads/google-cloud-sdk/completion.zsh.inc'
+fi
+
+# Oh-My-Zsh plugins
+source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Java 17
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home"
+
+# Android SDK
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+{{ end }}
+
+# ------------------------------
+# LINUX SPECIFIC (VPS / Raspi)
+# ------------------------------
+{{ if eq .chezmoi.os "linux" }}
+# Local paths
+export PATH="$HOME/.local/bin:$PATH"
+
+# Oh-My-Zsh & Powerlevel10k if installed
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+# Optional: plugins if installed
+# source ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+{{ end }}
+
+# ------------------------------
+# ANDROID (Termux)
+# ------------------------------
+{{ if eq .chezmoi.os "android" }}
+export PATH="$PREFIX/bin:$PATH"
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+{{ end }}
