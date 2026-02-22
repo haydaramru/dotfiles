@@ -1,0 +1,23 @@
+# chezmoi config — auto-detected + prompted on `chezmoi init`
+
+[data]
+  email = {{ promptStringOnce . "email" "Email address" | quote }}
+
+  {{- /* Auto-detect platform context */ -}}
+  {{- if eq .chezmoi.os "android" }}
+  is_termux = true
+  {{- else }}
+  is_termux = false
+  {{- end }}
+
+  {{- if eq .chezmoi.os "darwin" }}
+  is_mac = true
+  {{- else }}
+  is_mac = false
+  {{- end }}
+
+  {{- if and (eq .chezmoi.os "linux") (not (eq .chezmoi.os "android")) }}
+  is_linux = true
+  {{- else }}
+  is_linux = false
+  {{- end }}
