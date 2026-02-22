@@ -107,7 +107,6 @@ fi
 {{- end }}
 
 {{- if eq .chezmoi.os "linux" }}
-{{-   if not (eq .chezmoi.osRelease.id "android") }}
 
 # Linux-specific tools
 # Go (snap/manual install)
@@ -119,7 +118,6 @@ fi
 if [[ -d "/usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture 2>/dev/null)" ]]; then
   export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture)"
 fi
-{{-   end }}
 {{- end }}
 
 # ---------------------------------------------------------------------------
