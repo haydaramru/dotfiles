@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # chezmoi run_once script — installs zsh plugins via git clone
 # This runs once per machine (chezmoi tracks state via filename hash)
 
-set -euo pipefail
+set -eu
 
 ZSH_PLUGINS="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
 mkdir -p "$ZSH_PLUGINS"
