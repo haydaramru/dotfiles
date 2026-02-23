@@ -1,6 +1,6 @@
 # dotfiles (managed by chezmoi)
 
-Multi-machine dotfiles: macOS, Ubuntu VPS, Raspberry Pi 5, Android (Termux).
+Multi-machine dotfiles: macOS, Ubuntu VPS, Raspberry Pi, Android (Termux).
 
 ## Quick start
 
