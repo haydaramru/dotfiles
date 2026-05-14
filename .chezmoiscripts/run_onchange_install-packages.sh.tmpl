@@ -1,0 +1,10 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+set -eu
+
+if command -v apt >/dev/null 2>&1; then
+  sudo apt update
+  sudo apt install -y neovim git curl ripgrep fd-find
+fi
+{{ end -}}
+
