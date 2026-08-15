@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # chezmoi run_once script — installs zsh plugins via git clone
 # This runs once per machine (chezmoi tracks state via filename hash)
 

@@ -67,8 +67,8 @@ fi
 {{- if eq .chezmoi.os "darwin" }}
 
 # Go (Homebrew)
-if [[ -d "/opt/homebrew/opt/go@1.22/bin" ]]; then
-  path=("/opt/homebrew/opt/go@1.22/bin" $path)
+if [[ -d "/opt/homebrew/opt/go/bin" ]]; then
+  path=("/opt/homebrew/opt/go/bin" $path)
 fi
 
 # TeX Live
